@@ -30,7 +30,6 @@ func NewRedisStorage(client *redis.Client, bf *BloomFilter, key string, hashIter
 	}
 	//redis will not be inited, if keys has existed
 	if uint(exists) < store.hashIter {
-		fmt.Print("dddddd", uint(exists), hashIter)
 		if err = store.Init(hashIter, store.size); err != nil {
 			return nil, err
 		}
