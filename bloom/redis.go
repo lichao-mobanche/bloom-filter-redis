@@ -29,10 +29,12 @@ func NewRedisStorage(client *redis.Client, bf *BloomFilter, key string, hashIter
 		return nil, err
 	}
 	//redis will not be inited, if keys has existed
-	if uint(exists) < store.hashIter {
+	if uint(exists) != store.hashIter {
 		if err = store.Init(hashIter, store.size); err != nil {
 			return nil, err
 		}
+	} else {
+		store.filters = keys
 	}
 	return &store, nil
 }
