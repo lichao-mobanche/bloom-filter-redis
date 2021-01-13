@@ -39,4 +39,17 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println("hello is ", exist)
+
+	err = bf.Reset(100000, 0.01)
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+
+	exist, err = bf.ExistsAndAppend([]byte("hello"))
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+	fmt.Println("hello is ", exist)
 }

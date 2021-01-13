@@ -48,19 +48,22 @@ func (s *RedisStorage) Init(hashIter, size uint) (err error) {
 	pipe := s.client.TxPipeline()
 	defer pipe.Close()
 	var k uint
-	for k = 0; k < s.hashIter; k++ {
+	for k = 0; k < hashIter; k++ {
 		filterKey := s.getRedisKey(k + 1)
 		pipe.Del(filterKey)
-		pipe.SetBit(filterKey, int64(s.size), 0)
+		pipe.SetBit(filterKey, int64(size), 0)
 		s.filters[k] = filterKey
 	}
 	if _, err = pipe.Exec(); err != nil {
-		for k = 0; k < s.hashIter; k++ {
+		for k = 0; k < hashIter; k++ {
 			s.filters[k] = ""
 		}
 		pipe.Discard()
+	} else {
+		s.hashIter=hashIter
+		s.size=size
 	}
-	return nil
+	return err
 }
 
 // Append appends the bit, which is to be saved, to the Redis.

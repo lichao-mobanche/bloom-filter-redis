@@ -17,11 +17,11 @@ type safeMap struct {
 func NewKeyCache(cacheSize uint) *keyCache {
 
 	kc := &keyCache{
-		buckets:    make([]safeMap, BucketNumber, BucketNumber),
+		buckets:    make([]*safeMap, BucketNumber, BucketNumber),
 		bucketSize: cacheSize / uint(BucketNumber),
 	}
 	for i := 0; i < BucketNumber; i++ {
-		kc.buckets[i] = safeMap{
+		kc.buckets[i] = &safeMap{
 			make(map[[15]byte]struct{}, kc.bucketSize),
 			&sync.RWMutex{},
 		}
@@ -30,8 +30,17 @@ func NewKeyCache(cacheSize uint) *keyCache {
 }
 
 type keyCache struct {
-	buckets    []safeMap
+	buckets    []*safeMap
 	bucketSize uint
+}
+
+func (kc *keyCache) Reset() {
+	for i := 0; i < BucketNumber; i++ {
+		bucket := kc.buckets[i]
+		bucket.Lock()
+		bucket.inerMap = make(map[[15]byte]struct{}, kc.bucketSize)
+		bucket.Unlock()
+	}
 }
 
 func (kc *keyCache) Load(value []byte) {
@@ -100,7 +109,7 @@ func (kc *keyCache) Remove(value []byte) bool {
 	return ok
 }
 
-func (kc keyCache) getBucketKey(value []byte) (safeMap, [15]byte) {
+func (kc keyCache) getBucketKey(value []byte) (*safeMap, [15]byte) {
 	m := md5.Sum(value)
 	index := int(m[15])
 	var key [15]byte

@@ -82,6 +82,7 @@ func (b *BloomFilter) ExistsAndAppend(value []byte) (exists bool, err error) {
 			return true, nil
 		}
 	}
+	
 	return b.storage.ExistsAndAppend(value)
 }
 
@@ -91,7 +92,11 @@ func (b *BloomFilter) Reset(n uint, p float64) (err error) {
 	defer b.Unlock()
 	size, hashIter := EstimateParameters(n, p)
 	partitionSize := math.Ceil(float64(size) / float64(hashIter))
-	return b.storage.Init(hashIter, uint(partitionSize))
+	err = b.storage.Init(hashIter, uint(partitionSize))
+	if err == nil {
+		b.cache.Reset()
+	}
+	return
 }
 
 func getOffset(hash1, hash2, iter, size uint) uint {
