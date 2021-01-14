@@ -9,8 +9,8 @@ go get -u github.com/lichao-mobanche/bloom-filter-redis
 ```
 
 ## Usage
-bloom过滤器，支持缓存，支持redis存储后端，如需使用其他存储后端请实现 storage interface
 
+bloom filter which support mem cache and redis background, if you need other storage background please implement the interface of storage.
 
 ```
 package main
